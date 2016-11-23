@@ -1,3 +1,5 @@
+package com.example.danyllo.todolist;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -15,7 +17,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "myDB.db";
     private static final int DATABASE_VERSION = 1;
-    private static final String TABLE = "todo";
+    private static final String TABLE = "todolist";
 
     private String toDoID = "task";
 
@@ -25,7 +27,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        String CREATE_TABLE = "CREATE_TABLE " + TABLE + " ( _id INTEGER PRIMARY KEY AUTOINCREMENT, " + toDoID + " TEXT)";
+        String CREATE_TABLE = "CREATE TABLE " + TABLE + " ( _id INTEGER PRIMARY KEY AUTOINCREMENT, " + toDoID + " TEXT)";
         db.execSQL(CREATE_TABLE);
     }
 
@@ -39,7 +41,7 @@ public class DBHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(toDoID, task);
-        db.insert("TABLE", null, values);
+        db.insert(TABLE, null, values);
         db.close();
     }
 
