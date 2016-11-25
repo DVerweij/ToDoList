@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -64,12 +65,13 @@ public class MainActivity extends AppCompatActivity {
         }*/
     }
 
+    //initialization function
     private void initialize(){
         setViews();
         setListeners();
     }
 
-
+    //sets up the views and reads the lists from database
     private void setViews(){
         toDoListView = (ListView) findViewById(R.id.listView);
         insertText = (EditText) findViewById(R.id.editText);
@@ -78,35 +80,39 @@ public class MainActivity extends AppCompatActivity {
         colorList = db.readColors();
         toDoAdapter = new ArrayAdapter<String>(this, simple_list_item_1, toDoList);
         toDoListView.setAdapter(toDoAdapter);
+        //setViewColors(); //off because it produces exception
         Log.d("got here", String.valueOf(toDoListView.getChildCount()));
-        setViewColors();
     }
 
+    //function that sets the colors of the children of the listview
+    //doesn't work as childCount is zero for some reason
     private void setViewColors() {
-        Log.d("BOI", String.valueOf(toDoListView.getChildCount()));
-        for (int i = 0; i < toDoListView.getChildCount(); i++) {
+        Log.d("BOI", String.valueOf(toDoListView.getCount()));
+        for (int i = 0; i < toDoListView.getCount(); i++) {
             Log.d("GET", toDoList.get(i));
             Log.d("GET", colorList.get(i));
-            toDoListView.getChildAt(i).setBackgroundColor(Integer.parseInt(colorList.get(i)));
+            int trueIndex = i - toDoListView.getFirstVisiblePosition();
+            View child = toDoListView.getChildAt(trueIndex);
+            if (child != null) {
+                child.setBackgroundColor(Integer.parseInt(colorList.get(i)));
+            }
         }
     }
 
+    //function that sets onclick and onlongclick listeners for the listview
     private void setListeners() {
         toDoListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
                 db.delete(toDoList.get(position));
-                resetList();
-                Log.d("POS", String.valueOf(position));
-                Log.d("ID", String.valueOf(id));
+                resetList(); //delete element from list and reset
                 return false;
             }
         });
-
+        //sets background color to yellow on click
         toDoListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view,
                                     int position, long id) {
-                Log.d("TEMP", "TEMP");
                 View entry = toDoListView.getChildAt(position);
                 entry.setBackgroundColor(Color.YELLOW);
                 db.updateColor(toDoList.get(position), Color.YELLOW);
@@ -114,6 +120,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    //function which rereads the list and resets the adapter of the ListView with the new list
     private void resetList() {
         toDoList = db.read();
         colorList = db.readColors();
@@ -122,10 +129,10 @@ public class MainActivity extends AppCompatActivity {
         toDoAdapter.notifyDataSetChanged();
     }
 
-
+    //onclick function which adds task to database and displays it on screen
     public void addTask(View view) {
         String input = insertText.getText().toString().trim();
-        if (input.length() == 0) {
+        if (input.length() == 0) { //no empty strings
             Toast toast = Toast.makeText(this, "Invalid input", Toast.LENGTH_SHORT);
             toast.show();
         } else {
@@ -133,7 +140,7 @@ public class MainActivity extends AppCompatActivity {
                 insertText.setText("");
                 db.create(input);
                 resetList();
-            } else {
+            } else { //no entries already in the list
                 Toast contains = Toast.makeText(this, "You're already doing this", Toast.LENGTH_SHORT);
                 contains.show();
             }
