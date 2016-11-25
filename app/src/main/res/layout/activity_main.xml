@@ -24,7 +24,7 @@
         android:layout_height="255dp"
         android:layout_gravity="center"
         android:id="@+id/listView"
-        android:layout_weight="1.11" />
+        android:layout_weight="0.89" />
 
     <EditText
         android:layout_width="match_parent"
