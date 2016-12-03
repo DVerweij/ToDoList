@@ -8,6 +8,7 @@ import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -27,7 +28,8 @@ public class MainActivity extends AppCompatActivity {
 
     private ListView toDoListView;
     private EditText insertText;
-    private ArrayAdapter<String> toDoAdapter;
+    //private ArrayAdapter<String> toDoAdapter;
+    private CustomAdapter toDoAdapter;
     private ArrayList<String> toDoList, colorList;
     private DBHelper db = new DBHelper(this);
 
@@ -55,15 +57,15 @@ public class MainActivity extends AppCompatActivity {
         savedInstanceState.putStringArrayList("Adapter", adapVals);*/
     }
 
-    @Override
+    /*@Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
         insertText.setText(savedInstanceState.getString("editText", ""));
-        /*ArrayList<String> adapVals = savedInstanceState.getStringArrayList("Adapter");
+        /rrayList<String> adapVals = savedInstanceState.getStringArrayList("Adapter");
         if (adapVals != null) {
             toDoAdapter = new ArrayAdapter<String>(this, simple_list_item_1, adapVals);
-        }*/
-    }
+        }
+    }*/
 
     //initialization function
     private void initialize(){
@@ -78,7 +80,8 @@ public class MainActivity extends AppCompatActivity {
         insertText.setHint("What do you have to do?");
         toDoList = db.read();
         colorList = db.readColors();
-        toDoAdapter = new ArrayAdapter<String>(this, simple_list_item_1, toDoList);
+        //toDoAdapter = new ArrayAdapter<String>(this, simple_list_item_1, toDoList);
+        toDoAdapter = new CustomAdapter(this, toDoList, colorList);
         toDoListView.setAdapter(toDoAdapter);
         //setViewColors(); //off because it produces exception
         Log.d("got here", String.valueOf(toDoListView.getChildCount()));
@@ -124,9 +127,10 @@ public class MainActivity extends AppCompatActivity {
     private void resetList() {
         toDoList = db.read();
         colorList = db.readColors();
-        toDoAdapter.clear();
+        /*toDoAdapter.clear();
         toDoAdapter.addAll(toDoList);
-        toDoAdapter.notifyDataSetChanged();
+        toDoAdapter.notifyDataSetChanged();*/
+        toDoListView.setAdapter(new CustomAdapter(this, toDoList, colorList));
     }
 
     //onclick function which adds task to database and displays it on screen
@@ -145,5 +149,10 @@ public class MainActivity extends AppCompatActivity {
                 contains.show();
             }
         }
+    }
+    //this resets the adapter for the listView on editText click to prevent a bug where listView
+    // wasn't refreshing properly
+    public void editTextReset(View view) {
+        resetList();
     }
 }
